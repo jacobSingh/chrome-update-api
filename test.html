@@ -15,57 +15,71 @@
     }
   }
   
-  updateMake = function(version) {
-    updates[version] = function(log) {
-      log.push(version);
+  var log = new Array();
+  
+  var makeUpdates = function(versions) {
+    var updates = {};
+    var version;
+    for (i=0; i<versions.length; i++) {
+      version = versions[i];
+      updates[version] = makeUpdateFunction(version);
     }
-  } 
+    return updates;
+  }
+  
+  var makeUpdateFunction = function (version) {
+    return function() {
+      log.push(version.toString());
+    }
+  }
+  
+  /**
+   * Stubbing over the init function. 
+   */
+  updateManager.init = function(updates) {
+    this.updates = updates;
+  }
   
   
   function setup() {
-    updates = {};
+    log = new Array();
+    updateManager.updates = {};
     updateManager.extensions['abcd'] = {version: 1.0, name: 'foo'};
-  }
-  
-  function teardown() {
-    updates = {}
   }
 
   function test1() {
-    updateMake(1.1);
+    updateManager.init(makeUpdates([1.1]));
     updateManager.runUpdates(1.0);
-    assert(updateManager.log.join(",") == "1.1", "Ran Updates correctly");
+    assert(log.join(",") == "1.1", "Ran Updates correctly");
     
+    log = new Array();
     updateManager.runUpdates(1.2);
-    assert(updateManager.log.join(",") == "", "Ran Updates correctly");
+    assert(log.join(",") == "", "Ran Updates correctly");
   }
   
   function test2() {
-    updateMake(1.1);
-    updateMake(1.2);
-    updateMake(1.3);
+    updateManager.init(makeUpdates([1.1, 1.2, 1.3]));
     
     updateManager.runUpdates(1.0);
-    assert(updateManager.log.join(",") == "1.1,1.2,1.3", "Ran Updates correctly");
+    assert(log.join(",") == "1.1,1.2,1.3", "Ran Updates correctly");
     
+    log = new Array();
     updateManager.runUpdates(1.1);
-    assert(updateManager.log.join(",") == "1.2,1.3", "Ran Updates correctly");
+    assert(log.join(",") == "1.2,1.3", "Ran Updates correctly");
   }
   
   function test3() {
-    updateMake(1.1);
-    updateMake("1.2");
-    updateMake("abc");
+    updateManager.init(makeUpdates([1.1, "1.2", "abc"]));
     
+    log = new Array();
     updateManager.runUpdates(1.0);
-    assert(updateManager.log.join(",") == "1.1,1.2", "Ran Updates correctly");
+    assert(log.join(",") == "1.1,1.2", "Ran Updates correctly");
   }
 
   tests = [test1, test2, test3];
   for (t=0; t < tests.length; t++) {
     setup();
     tests[t]();
-    teardown();
   }
   
 </script>

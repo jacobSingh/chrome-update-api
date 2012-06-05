@@ -1,9 +1,10 @@
 var updateManager = {
   extensions: {},
-  log: new Array(),
+  updates: {}
 };
 
-updateManager.init = function() {
+updateManager.init = function(updates) {
+  this.updates = updates;
   self = this;
   var getAllCallback = function(exts) {
     for(i=0; i < exts.length; i++) {
@@ -30,13 +31,12 @@ updateManager.onInstalled = function(extensionInfo) {
  * updates[version] = function()...
  */
 updateManager.runUpdates = function(startVersion) {
-  this.log = new Array();
   var updatesToRun = new Array();
   
-  for (var i in updates) {
-    if (updates.hasOwnProperty(i)) {
+  for (var i in this.updates) {
+    if (this.updates.hasOwnProperty(i)) {
       if (parseFloat(i) > startVersion) {
-        updatesToRun.push(updates[i]);
+        updatesToRun.push(this.updates[i]);
       }
     }
   }
@@ -46,6 +46,6 @@ updateManager.runUpdates = function(startVersion) {
   });
   
   for (i =0; i < updatesToRun.length; i++) {
-    updatesToRun[i](this.log);
+    updatesToRun[i]();
   }
 }

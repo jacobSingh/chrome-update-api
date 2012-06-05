@@ -6,10 +6,15 @@ Simple API for Chrome extension authors to run callback functions when your exte
 ## Usage
 
 1. Include update.chrome.js in your background.html
-2. Add an "updates" array in the *global* scope in background.js of update functions. 
+2. Create an object containing your update functions where the
+   properties are version numbers and the values are functions to run
+   when that version is updated to. 
+3. Call updateManager.init(myUpdates);
 
 ### Example:
 ```javascript
+var updates = {};
+
 updates[1.1] = function() {
   // Code which should run when upgrading to version 1.1 should be here.
 }
@@ -17,6 +22,8 @@ updates[1.1] = function() {
 updates[1.2] = function() {
   // Code which should run when upgrading to version 1.2 should be here.
 }
+
+updateManager.init(updates);
 
 ```
 
@@ -32,7 +39,8 @@ updates[1.2] = function() {
 // variable
 // localStorage['creds'] = {userId: 123, password: secret};
 
-// updates is a global Array.
+var updates = {};
+
 updates[1.1] = function() {
   localStorage['creds'] = JSON.stringify({userId: localStorage['userId'],
 password: localStorage['password']});
@@ -52,4 +60,5 @@ updates[1.2] = function() {
   localStorage['creds'] = JSON.stringify(creds);
 }
 
+updateManager.init(updates);
 ```
